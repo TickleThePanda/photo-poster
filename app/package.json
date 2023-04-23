@@ -9,10 +9,7 @@
   },
   "author": "",
   "license": "ISC",
-  "bundleDependencies": [
-    "aws-sdk",
-    "masto"
-  ],
+  "bundleDependencies": true,
   "dependencies": {
     "aws-sdk": "^2.1363.0",
     "exif-reader": "^1.2.0",
