@@ -1,8 +1,6 @@
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { login } from "masto";
 import aws from "aws-sdk";
-
-const axois = new Axios();
 
 const fileLocation = "/tmp/image";
 
@@ -45,7 +43,7 @@ export async function handler() {
   console.log("Using gallery URL: " + galleryUrl);
   console.log("Mastodon API base URL: " + mastodonApiBaseUrl);
 
-  const result = await axois.get(galleryUrl, {});
+  const result = await axios.get(galleryUrl, {});
 
   /**
    * @type {Gallery[]}
