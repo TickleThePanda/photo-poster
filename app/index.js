@@ -4,6 +4,7 @@ import aws from "aws-sdk";
 import { createWriteStream } from "fs";
 
 const fileLocation = "/tmp/image";
+const secretsManagerClient = new aws.SecretsManager();
 
 /**
  * @typedef {Object} Gallery
@@ -51,14 +52,10 @@ export async function handler() {
    */
   const galleries = result.data.galleries;
 
-  const allImages = galleries.flatMap((g) => g.images);
-  const imageCount = allImages.length;
-  const randomIndex = Math.floor(Math.random() * imageCount);
-  const selectedImage = allImages[randomIndex];
-  const imageSizes = selectedImage.sizes.filter((s) => (s.type = "webp"));
-  const largestSize = imageSizes.reduce((p, c) => (c.x > p.x ? c : p), {
-    x: 0,
-  });
+  const selectedImage = selectRandomImage(galleries);
+  console.log(`Selected random image ${selectedImage.name}`);
+  const largestSize = getLargestSizeImage(selectedImage);
+  console.log(`Selected size ${largestSize.x}x${largestSize.y}`);
   const url = galleryUrl + largestSize.url;
 
   await downloadFile(url, fileLocation);
@@ -80,7 +77,31 @@ export async function handler() {
   });
 }
 
-const secretsManagerClient = new aws.SecretsManager();
+/**
+ *
+ * @param {Image} selectedImage
+ * @returns {Size}
+ */
+function getLargestSizeImage(selectedImage) {
+  const imageSizes = selectedImage.sizes.filter((s) => (s.type = "webp"));
+  const largestSize = imageSizes.reduce((p, c) => (c.x > p.x ? c : p), {
+    x: 0,
+  });
+  return largestSize;
+}
+
+/**
+ * @param {Gallery[]} galleries
+ * @returns {Image}
+ */
+function selectRandomImage(galleries) {
+  const allImages = galleries.flatMap((g) => g.images);
+  const imageCount = allImages.length;
+  const randomIndex = Math.floor(Math.random() * imageCount);
+  const selectedImage = allImages[randomIndex];
+  return selectedImage;
+}
+
 async function getSecret(secretName) {
   const { SecretString: value } = await secretsManagerClient
     .getSecretValue({
@@ -96,13 +117,16 @@ async function getSecret(secretName) {
 }
 
 async function downloadFile(url, file) {
-  const { data } = await axios.get(url, {
+  console.log(`Downloading image to temporary file: ${url}`);
+  const response = await axios.get(url, {
     responseType: "stream",
   });
   const writer = createWriteStream(file);
 
+  console.log(`Response from server ${response.status} ${response.statusText}`);
+
   return new Promise((resolve, reject) => {
-    data.pipe(writer);
+    response.data.pipe(writer);
     writer.on("error", (err) => {
       writer.close();
       reject(err);
