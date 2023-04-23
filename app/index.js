@@ -48,7 +48,7 @@ export async function handler() {
   /**
    * @type {Gallery[]}
    */
-  const galleries = result.data;
+  const galleries = result.data.galleries;
 
   const allImages = galleries.flatMap((g) => g.images);
   const imageCount = allImages.length;
