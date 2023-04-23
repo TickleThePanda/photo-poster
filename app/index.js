@@ -96,7 +96,9 @@ async function getSecret(secretName) {
 }
 
 async function downloadFile(url, file) {
-  const { data } = await axios.get(url, {});
+  const { data } = await axios.get(url, {
+    responseType: "stream",
+  });
   const writer = createWriteStream(file);
 
   return new Promise((resolve, reject) => {
