@@ -47,7 +47,7 @@ export async function handler() {
   /**
    * @type {Gallery[]}
    */
-  const galleries = result.data.galleries;
+  const galleries = (await result.json()).galleries;
 
   const selectedImage = selectRandomImage(galleries);
   console.log(`Selected random image ${selectedImage.name}`);
