@@ -8,6 +8,7 @@ locals {
   mastodon_api_base_url = "https://tech.lgbt/"
   lambda_name           = "photo-poster"
   gallery_url           = "https://galleries.ticklethepanda.co.uk/"
+  schedule              = "cron(0 15 * * 1)"
 }
 
 resource "aws_secretsmanager_secret" "mastodon_secret" {
@@ -86,3 +87,21 @@ resource "aws_lambda_function" "lambda" {
   }
 }
 
+resource "aws_cloudwatch_event_rule" "schedule" {
+  name                = "schedule"
+  description         = "Schedule for Lambda Function"
+  schedule_expression = var.schedule
+}
+
+resource "aws_cloudwatch_event_target" "schedule_lambda" {
+  rule      = aws_cloudwatch_event_rule.schedule.name
+  target_id = "processing_lambda"
+  arn       = aws_lambda_function.lambda.arn
+}
+
+resource "aws_lambda_permission" "allow_events_bridge_to_run_lambda" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda.function_name
+  principal     = "events.amazonaws.com"
+}
