@@ -66,7 +66,7 @@ resource "aws_lambda_function" "lambda" {
   function_name    = local.lambda_name
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.handler"
-  runtime          = "nodejs16.x"
+  runtime          = "nodejs18.x"
   timeout          = 900
 
   environment {
