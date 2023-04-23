@@ -1,5 +1,6 @@
 import { login } from "masto";
 import aws from "aws-sdk";
+import sharp from "sharp";
 
 const secretsManagerClient = new aws.SecretsManager();
 
@@ -67,8 +68,16 @@ export async function handler() {
     description: selectedImage.alt,
   });
 
+  const metadata = await sharp(
+    Buffer.from(await blob.arrayBuffer())
+  ).metadata();
+
+  console.log(metadata.exif);
+
   const status = await masto.v1.statuses.create({
-    status: `${selectedImage.name} #photography`,
+    status: `${selectedImage.name}
+#photography
+More: https://www.ticklethepanda.dev/photography/`,
     mediaIds: [attachment.id],
     visibility: "public",
   });
