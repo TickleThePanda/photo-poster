@@ -58,6 +58,9 @@ export async function handler() {
   const url = galleryUrl + largestSize.url;
 
   const blob = await getFileAsBlob(url);
+  const originalBlob = await getFileAsBlob(
+    galleryUrl + selectedImage.originalImageUrl
+  );
 
   const masto = await login({
     url: mastodonApiBaseUrl,
@@ -70,12 +73,13 @@ export async function handler() {
   });
 
   const metadata = await sharp(
-    Buffer.from(await blob.arrayBuffer())
+    Buffer.from(await originalBlob.arrayBuffer())
   ).metadata();
 
-  const decodedExif = exif(metadata.exif);
-
-  console.log(decodedExif);
+  if (metadata.exif !== undefined) {
+    const decodedExif = exif(metadata.exif);
+    console.log(decodedExif);
+  }
 
   await masto.v1.statuses.create({
     status: `${selectedImage.name}
