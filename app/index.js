@@ -6,6 +6,37 @@ const axois = new Axios();
 
 const fileLocation = "/tmp/image";
 
+/**
+ * @typedef {Object} Gallery
+ * @property {string} name
+ * @property {string} ref
+ * @property {string} description
+ * @property {Image[]} images
+ */
+
+/**
+ * @typedef {Object} Image
+ * @property {string} name
+ * @property {string} alt
+ * @property {string} originalImageUrl
+ * @property {Size[]} sizes
+ * @property {AspectRatio} aspectRatio
+ */
+
+/**
+ * @typedef {Object} Size
+ * @property {number} x
+ * @property {number} y
+ * @property {string} type
+ * @property {string} url
+ */
+
+/**
+ * @typedef {Object} AspectRatio
+ * @property {string} x
+ * @property {string} y
+ */
+
 export async function handler() {
   const mastodonApiToken = await getSecret("MASTODON_API_TOKEN");
   const mastodonApiBaseUrl = process.env.MASTODON_API_BASE_URL;
@@ -14,16 +45,21 @@ export async function handler() {
   console.log("Using gallery URL: " + galleryUrl);
   console.log("Mastodon API base URL: " + mastodonApiBaseUrl);
 
-  const {
-    data: { galleries },
-  } = await axois.get(galleryUrl);
+  const result = await axois.get(galleryUrl, {});
+
+  /**
+   * @type {Gallery[]}
+   */
+  const galleries = result.data;
 
   const allImages = galleries.flatMap((g) => g.images);
   const imageCount = allImages.length;
   const randomIndex = Math.floor(Math.random() * imageCount);
   const selectedImage = allImages[randomIndex];
   const imageSizes = selectedImage.sizes.filter((s) => (s.type = "webp"));
-  const largestSize = imageSizes.reduce((p, c) => (c.x > p.x ? c : p));
+  const largestSize = imageSizes.reduce((p, c) => (c.x > p.x ? c : p), {
+    x: 0,
+  });
   const url = galleryUrl + largestSize.url;
 
   await downloadFile(url, fileLocation);
@@ -61,7 +97,7 @@ async function getSecret(secretName) {
 }
 
 async function downloadFile(url, file) {
-  const { data } = await axios.get(url);
+  const { data } = await axios.get(url, {});
   const writer = createWriteStream(file);
 
   return new Promise((resolve, reject) => {
