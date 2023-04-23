@@ -41,8 +41,8 @@ export async function handler() {
   const mastodonApiBaseUrl = process.env.MASTODON_API_BASE_URL;
   const galleryUrl = process.env.GALLERY_URL;
 
-  console.log("Using gallery URL: " + galleryUrl);
-  console.log("Mastodon API base URL: " + mastodonApiBaseUrl);
+  console.log(`Using gallery URL: '${galleryUrl}'`);
+  console.log(`Mastodon API base URL '${mastodonApiBaseUrl}'`);
 
   const result = await fetch(galleryUrl);
 
@@ -52,7 +52,7 @@ export async function handler() {
   const galleries = (await result.json()).galleries;
 
   const selectedImage = selectRandomImage(galleries);
-  console.log(`Selected random image ${selectedImage.name}`);
+  console.log(`Selected random image '${selectedImage.name}'`);
   const largestSize = getLargestSizeImage(selectedImage);
   console.log(`Selected size ${largestSize.x}x${largestSize.y}`);
   const url = galleryUrl + largestSize.url;
@@ -132,7 +132,7 @@ async function getSecret(secretName) {
 }
 
 async function getFileAsBlob(url) {
-  console.log(`Downloading image to temporary file: ${url}`);
+  console.log(`Downloading image ${url}`);
   const response = await fetch(url);
 
   console.log(`Response from server ${response.status} ${response.statusText}`);

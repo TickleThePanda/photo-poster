@@ -68,6 +68,7 @@ resource "aws_lambda_function" "lambda" {
   handler          = "index.handler"
   runtime          = "nodejs18.x"
   timeout          = 900
+  memory_size      = 512
 
   environment {
     variables = {
