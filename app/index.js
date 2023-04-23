@@ -79,6 +79,8 @@ export async function handler() {
   if (metadata.exif !== undefined) {
     const decodedExif = exif(metadata.exif);
     console.log(decodedExif);
+  } else {
+    console.log("no exif");
   }
 
   await masto.v1.statuses.create({
