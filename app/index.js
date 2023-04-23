@@ -1,6 +1,7 @@
 import { login } from "masto";
 import aws from "aws-sdk";
 import sharp from "sharp";
+import exif from "exif-reader";
 
 const secretsManagerClient = new aws.SecretsManager();
 
@@ -72,9 +73,11 @@ export async function handler() {
     Buffer.from(await blob.arrayBuffer())
   ).metadata();
 
-  console.log(metadata.exif);
+  const decodedExif = exif(metadata.exif);
 
-  const status = await masto.v1.statuses.create({
+  console.log(decodedExif);
+
+  await masto.v1.statuses.create({
     status: `${selectedImage.name}
 #photography
 More: https://www.ticklethepanda.dev/photography/`,
