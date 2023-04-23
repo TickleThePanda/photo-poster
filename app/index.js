@@ -1,7 +1,5 @@
-import axios from "axios";
 import { login } from "masto";
 import aws from "aws-sdk";
-import { createWriteStream } from "fs";
 
 const secretsManagerClient = new aws.SecretsManager();
 
@@ -44,7 +42,7 @@ export async function handler() {
   console.log("Using gallery URL: " + galleryUrl);
   console.log("Mastodon API base URL: " + mastodonApiBaseUrl);
 
-  const result = await axios.get(galleryUrl, {});
+  const result = await fetch(galleryUrl);
 
   /**
    * @type {Gallery[]}
@@ -117,11 +115,9 @@ async function getSecret(secretName) {
 
 async function getFileAsBlob(url) {
   console.log(`Downloading image to temporary file: ${url}`);
-  const response = await axios.get(url, {
-    responseType: "blob",
-  });
+  const response = await fetch(url);
 
   console.log(`Response from server ${response.status} ${response.statusText}`);
 
-  return response.data;
+  return await response.blob();
 }
