@@ -1,6 +1,7 @@
 import axios from "axios";
 import { login } from "masto";
 import aws from "aws-sdk";
+import { createWriteStream } from "fs";
 
 const fileLocation = "/tmp/image";
 
