@@ -3,7 +3,7 @@ import { login } from "masto";
 import aws from "aws-sdk";
 
 export async function handler() {
-  const mastodonApiToken = getSecret("MASTODON_API_TOKEN");
+  const mastodonApiToken = await getSecret("MASTODON_API_TOKEN");
   const mastodonApiBaseUrl = process.env.MASTODON_API_BASE_URL;
   const galleryUrl = process.env.GALLERY_URL;
 
