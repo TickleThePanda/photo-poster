@@ -11,6 +11,9 @@ export async function handler() {
   const mastodonApiBaseUrl = process.env.MASTODON_API_BASE_URL;
   const galleryUrl = process.env.GALLERY_URL;
 
+  console.log("Using gallery URL: " + galleryUrl);
+  console.log("Mastodon API base URL: " + mastodonApiBaseUrl);
+
   const {
     data: { galleries },
   } = await axois.get(galleryUrl);
