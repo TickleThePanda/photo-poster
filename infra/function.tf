@@ -8,7 +8,7 @@ locals {
   mastodon_api_base_url = "https://tech.lgbt/"
   lambda_name           = "photo-poster"
   gallery_url           = "https://galleries.ticklethepanda.co.uk/"
-  schedule              = "cron(0 15 * * 1)"
+  schedule              = "cron(0 15 ? * MON *)"
 }
 
 resource "aws_secretsmanager_secret" "mastodon_secret" {
@@ -81,15 +81,15 @@ resource "aws_lambda_function" "lambda" {
 
   lifecycle {
     ignore_changes = [
-      "filename",
-      "source_code_hash"
+      filename,
+      source_code_hash
     ]
   }
 }
 
 resource "aws_cloudwatch_event_rule" "schedule" {
-  name                = "schedule"
-  description         = "Schedule for Lambda Function"
+  name                = "weekly-photo-poster"
+  description         = "Weekly photo poster"
   schedule_expression = local.schedule
 }
 
