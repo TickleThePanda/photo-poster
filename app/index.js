@@ -1,8 +1,8 @@
 import { Axios } from "axios";
 import { login } from "masto";
-import { SecretsManager } from "aws-sdk";
+import aws from "aws-sdk";
 
-exports.handler = async function (event, context) {
+export async function handler(event, context) {
   const mastodonApiToken = getSecret("MASTODON_API_TOKEN");
   const mastodonApiBaseUrl = process.env.MASTODON_API_BASE_URL;
   const galleryUrl = process.env.GALLERY_URL;
@@ -18,9 +18,9 @@ exports.handler = async function (event, context) {
   });
 
   return context.logStreamName;
-};
+}
 
-const secretsManagerClient = new SecretsManager();
+const secretsManagerClient = new aws.SecretsManager();
 async function getSecret(secretName) {
   const { SecretString: value } = await secretsManagerClient
     .getSecretValue({
