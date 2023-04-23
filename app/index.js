@@ -67,7 +67,7 @@ export async function handler() {
     description: selectedImage.alt,
   });
 
-  const status = await masto.v2.statuses.create({
+  const status = await masto.v1.statuses.create({
     status: `${selectedImage.name} #photography`,
     mediaIds: [attachment.id],
     visibility: "public",
