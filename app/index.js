@@ -57,7 +57,7 @@ export async function handler() {
   console.log(`Selected size ${largestSize.x}x${largestSize.y}`);
   const url = galleryUrl + largestSize.url;
 
-  const blob = await getFileAsBlob(url, fileLocation);
+  const blob = await getFileAsBlob(url);
 
   const masto = await login({
     url: mastodonApiBaseUrl,
@@ -115,12 +115,11 @@ async function getSecret(secretName) {
   return value;
 }
 
-async function getFileAsBlob(url, file) {
+async function getFileAsBlob(url) {
   console.log(`Downloading image to temporary file: ${url}`);
   const response = await axios.get(url, {
     responseType: "blob",
   });
-  const writer = createWriteStream(file);
 
   console.log(`Response from server ${response.status} ${response.statusText}`);
 
