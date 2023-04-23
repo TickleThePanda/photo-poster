@@ -3,7 +3,6 @@ import { login } from "masto";
 import aws from "aws-sdk";
 import { createWriteStream } from "fs";
 
-const fileLocation = "/tmp/image";
 const secretsManagerClient = new aws.SecretsManager();
 
 /**
@@ -58,7 +57,7 @@ export async function handler() {
   console.log(`Selected size ${largestSize.x}x${largestSize.y}`);
   const url = galleryUrl + largestSize.url;
 
-  await downloadFile(url, fileLocation);
+  const blob = await getFileAsBlob(url, fileLocation);
 
   const masto = await login({
     url: mastodonApiBaseUrl,
@@ -66,7 +65,7 @@ export async function handler() {
   });
 
   const attachment = await masto.v2.mediaAttachments.create({
-    file: fileLocation,
+    file: blob,
     description: selectedImage.alt,
   });
 
@@ -116,23 +115,14 @@ async function getSecret(secretName) {
   return value;
 }
 
-async function downloadFile(url, file) {
+async function getFileAsBlob(url, file) {
   console.log(`Downloading image to temporary file: ${url}`);
   const response = await axios.get(url, {
-    responseType: "stream",
+    responseType: "blob",
   });
   const writer = createWriteStream(file);
 
   console.log(`Response from server ${response.status} ${response.statusText}`);
 
-  return new Promise((resolve, reject) => {
-    response.data.pipe(writer);
-    writer.on("error", (err) => {
-      writer.close();
-      reject(err);
-    });
-    writer.on("close", () => {
-      resolve(true);
-    });
-  });
+  return response.data;
 }
