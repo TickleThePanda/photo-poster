@@ -65,12 +65,12 @@ export async function handler() {
     accessToken: mastodonApiToken,
   });
 
-  const attachment = await masto.v1.mediaAttachments.create({
+  const attachment = await masto.v2.mediaAttachments.create({
     file: fileLocation,
     description: selectedImage.alt,
   });
 
-  const status = await masto.v1.statuses.create({
+  const status = await masto.v2.statuses.create({
     status: `${selectedImage.name} #photography`,
     mediaIds: [attachment.id],
     visibility: "public",
