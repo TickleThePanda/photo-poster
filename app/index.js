@@ -1,7 +1,5 @@
 import { login } from "masto";
 import aws from "aws-sdk";
-import sharp from "sharp";
-import exif from "exif-reader";
 
 const secretsManagerClient = new aws.SecretsManager();
 
@@ -50,7 +48,6 @@ export async function handler() {
    * @type {Gallery[]}
    */
   const galleries = (await result.json()).galleries;
-
   const selectedImage = selectRandomImage(galleries);
   console.log(`Selected random image '${selectedImage.name}'`);
   const largestSize = getLargestSizeImage(selectedImage);
@@ -58,9 +55,6 @@ export async function handler() {
   const url = galleryUrl + largestSize.url;
 
   const blob = await getFileAsBlob(url);
-  const originalBlob = await getFileAsBlob(
-    galleryUrl + selectedImage.originalImageUrl
-  );
 
   const masto = await login({
     url: mastodonApiBaseUrl,
@@ -72,20 +66,9 @@ export async function handler() {
     description: selectedImage.alt,
   });
 
-  const metadata = await sharp(
-    Buffer.from(await originalBlob.arrayBuffer())
-  ).metadata();
-
-  if (metadata.exif !== undefined) {
-    const decodedExif = exif(metadata.exif);
-    console.log(decodedExif);
-  } else {
-    console.log("no exif");
-  }
-
   await masto.v1.statuses.create({
-    status: `${selectedImage.name}
-#photography
+    status: `"${selectedImage.name}"
+#FilmPhotography
 More: https://www.ticklethepanda.dev/photography/`,
     mediaIds: [attachment.id],
     visibility: "public",
