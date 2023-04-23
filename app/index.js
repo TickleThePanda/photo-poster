@@ -2,7 +2,7 @@ import { Axios } from "axios";
 import { login } from "masto";
 import aws from "aws-sdk";
 
-export async function handler(event, context) {
+export async function handler() {
   const mastodonApiToken = getSecret("MASTODON_API_TOKEN");
   const mastodonApiBaseUrl = process.env.MASTODON_API_BASE_URL;
   const galleryUrl = process.env.GALLERY_URL;
@@ -16,8 +16,6 @@ export async function handler(event, context) {
     status: "Hello from #mastojs!",
     visibility: "public",
   });
-
-  return context.logStreamName;
 }
 
 const secretsManagerClient = new aws.SecretsManager();
