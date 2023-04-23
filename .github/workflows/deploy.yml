@@ -16,10 +16,10 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform init
-        working_directory: infra
+        working-directory: infra
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
-        working_directory: infra
+        working-directory: infra
 
   pack-and-release:
     runs-on: ubuntu-latest
@@ -29,9 +29,9 @@ jobs:
         with:
           node-version: 16
       - run: npm ci
-        working_directory: app
+        working-directory: app
       - run: npm run pack
-        working_directory: app
+        working-directory: app
       - name: AWS Lambda Deploy
         uses: appleboy/lambda-action@v0.1.9
         with:
