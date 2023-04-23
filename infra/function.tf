@@ -90,7 +90,7 @@ resource "aws_lambda_function" "lambda" {
 resource "aws_cloudwatch_event_rule" "schedule" {
   name                = "schedule"
   description         = "Schedule for Lambda Function"
-  schedule_expression = var.schedule
+  schedule_expression = local.schedule
 }
 
 resource "aws_cloudwatch_event_target" "schedule_lambda" {
