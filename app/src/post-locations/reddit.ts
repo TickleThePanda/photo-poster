@@ -4,7 +4,7 @@ import { PostLocation } from "./post-location.js";
 import totp from "totp-generator";
 
 const authUrl = "https://www.reddit.com/api/v1/access_token/";
-const apiBase = "https://oauth.reddit.com/api";
+const apiBase = "https://oauth.reddit.com";
 
 export type RedditConfig = {
   clientKey: string;
@@ -23,37 +23,27 @@ export class RedditPostLocation implements PostLocation {
   }
 
   async post(image: SelectedImage): Promise<void> {
-    const accessToken = await this.login();
+    const api = await this.login();
 
-    const body = new FormData();
-    body.append("kind", "image");
-    body.append("title", `${image.name} (${image.meta})`);
-    body.append("url", image.fullUrl);
-    body.append("sr", "test");
+    const mediaBody = new FormData();
+    mediaBody.append("filepath", "photo");
+    mediaBody.append("mimetype", "image/webp");
 
-    const result = await fetch(apiBase + "/submit/", {
-      method: "POST",
-      body,
-      headers: {
-        Authorization: "bearer " + accessToken,
-        "User-Agent": "PhotoPoster by TickleThePanda",
-      },
+    const mediaResult = await api.post("/api/media/asset.json", {
+      filepath: "photo",
+      mimetype: "image/webp",
     });
 
-    if (result.status !== 200) {
-      console.log(
-        `Error posting image ${result.status} ${
-          result.statusText
-        }: ${await result.text()}`
-      );
-      throw new Error(
-        `Error posting image ${result.status} ${
-          result.statusText
-        }: ${await result.text()}`
-      );
-    }
+    console.log("Result from media" + JSON.stringify(mediaResult));
 
-    console.log("Result from reddit: " + JSON.stringify(await result.json()));
+    // const result = await api.post("/api/submit/", {
+    //   kind: "image",
+    //   title: `${image.name} (${image.meta})`,
+    //   url: image.fullUrl,
+    //   sr: "test",
+    // });
+
+    // console.log("Result from reddit: " + JSON.stringify(result));
   }
 
   private async login() {
@@ -91,6 +81,45 @@ export class RedditPostLocation implements PostLocation {
     }
 
     const accessToken = data.access_token;
-    return accessToken;
+    return new RedditUserApi(accessToken);
+  }
+}
+
+class RedditUserApi {
+  constructor(private token: string) {}
+  async post(path: string, data: Record<string, string>) {
+    const body = new FormData();
+    for (const [k, v] of Object.entries(data)) {
+      body.append(k, v);
+    }
+    body.append("api_type", "json");
+
+    const response = await fetch(
+      apiBase + path,
+      Object.assign(this.defaultRequest(), {
+        method: "POST",
+        body,
+      })
+    );
+
+    if (response.status !== 200) {
+      console.log(
+        `Error making request ${path}: ${response.status} ${response.statusText}`
+      );
+      throw new Error(
+        `Error making request ${path}: ${response.status} ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  private defaultRequest() {
+    return {
+      headers: {
+        Authorization: `bearer ${this.token}`,
+        "User-Agent": "PhotoPoster by TickleThePanda",
+      },
+    };
   }
 }
