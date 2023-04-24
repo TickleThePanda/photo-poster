@@ -1,8 +1,4 @@
 
-variable "mastodon_api_token" {
-  sensitive = true
-  nullable  = false
-}
 
 locals {
   mastodon_api_base_url = "https://tech.lgbt/"
@@ -11,14 +7,6 @@ locals {
   schedule              = "cron(0 15 ? * MON *)"
 }
 
-resource "aws_secretsmanager_secret" "mastodon_secret" {
-  name = "mastodon-secret"
-}
-
-resource "aws_secretsmanager_secret_version" "mastodon_secret" {
-  secret_id     = aws_secretsmanager_secret.mastodon_secret.id
-  secret_string = var.mastodon_api_token
-}
 
 data "aws_iam_policy_document" "lambda_assumed_role_policy" {
   statement {
@@ -32,24 +20,10 @@ data "aws_iam_policy_document" "lambda_assumed_role_policy" {
   }
 }
 
-data "aws_iam_policy_document" "lambda_role_policy" {
-  statement {
-    effect    = "Allow"
-    actions   = ["secretsmanager:GetSecretValue"]
-    resources = ["${aws_secretsmanager_secret.mastodon_secret.arn}"]
-  }
-}
-
 resource "aws_iam_role" "lambda_role" {
   name               = "photo-poster-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assumed_role_policy.json
-
-  inline_policy {
-    name   = "lambda-get-secrets"
-    policy = data.aws_iam_policy_document.lambda_role_policy.json
-  }
 }
-
 
 data "archive_file" "main" {
   type        = "zip"
@@ -73,9 +47,14 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables = {
-      MASTODON_API_TOKEN_ASM_NAME = aws_secretsmanager_secret.mastodon_secret.name
-      MASTODON_API_BASE_URL       = local.mastodon_api_base_url
-      GALLERY_URL                 = local.gallery_url
+      MASTODON_API_TOKEN_ASM_NAME         = module.mastodon_api_token.secret_name
+      REDDIT_API_APP_ID_ASM_NAME          = module.reddit_api_app_id.secret_name
+      REDDIT_API_APP_SECRET_ASM_NAME      = module.reddit_api_app_secret.secret_name
+      REDDIT_API_POSTER_USER_ASM_NAME     = module.reddit_api_poster_user.secret_name
+      REDDIT_API_POSTER_PASSWORD_ASM_NAME = module.reddit_api_poster_password.secret_name
+      REDDIT_API_POSTER_OTP_KEY_ASM_NAME  = module.reddit_api_poster_otp_key.secret_name
+      MASTODON_API_BASE_URL               = local.mastodon_api_base_url
+      GALLERY_URL                         = local.gallery_url
     }
   }
 

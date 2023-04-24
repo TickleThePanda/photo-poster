@@ -1,9 +1,10 @@
 import { Handler, Context } from "aws-lambda";
 import { ImageSelector } from "./image-selector.js";
 import { PostLocation } from "./post-locations/post-location.js";
-import { MastodonPostLocation } from "./post-locations/mastodon-location.js";
+import { MastodonPostLocation } from "./post-locations/mastodon.js";
 import { getRequiredEnv } from "./required-env.js";
 import { getSecret } from "./secrets-manager.js";
+import { RedditPostLocation } from "./post-locations/reddit.js";
 
 type Event = {
   excludes: string[] | undefined;
@@ -25,6 +26,14 @@ export const handler: Handler = async (
     mastodon: new MastodonPostLocation({
       baseUrl: mastodonApiBaseUrl,
       accessToken: mastodonApiToken,
+    }),
+    reddit: new RedditPostLocation({
+      baseUrl: "https://www.reddit.com/api/v1/",
+      clientKey: await getSecret("REDDIT_API_APP_ID"),
+      clientSecret: await getSecret("REDDIT_API_APP_SECRET"),
+      posterUser: await getSecret("REDDIT_API_POSTER_USER"),
+      posterPassword: await getSecret("REDDIT_API_POSTER_PASSWORD"),
+      posterTotpKey: await getSecret("REDDIT_API_POSTER_OTP_KEY"),
     }),
   };
 

@@ -10,6 +10,10 @@ export type MastodonConfig = {
 export class MastodonPostLocation implements PostLocation {
   constructor(private config: MastodonConfig) {}
 
+  async canPost(image: SelectedImage): Promise<boolean> {
+    return true;
+  }
+
   async post(image: SelectedImage): Promise<void> {
     const masto = await login({
       url: this.config.baseUrl,
