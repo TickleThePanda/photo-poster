@@ -30,10 +30,16 @@ export class RedditPostLocation implements PostLocation {
     mediaBody.append("filepath", "photo");
     mediaBody.append("mimetype", "image/webp");
 
-    const mediaResult = (await api.post("/api/media/asset.json", {
-      filepath: "photo",
-      mimetype: "image/webp",
-    })) as any;
+    const mediaResult = (await api.post(
+      "/api/media/asset.json",
+      {
+        filepath: "photo",
+        mimetype: "image/webp",
+      },
+      {
+        json: true,
+      }
+    )) as any;
 
     console.log("Result from media" + JSON.stringify(mediaResult));
 
@@ -52,19 +58,31 @@ export class RedditPostLocation implements PostLocation {
       body: uploadFormData,
     });
 
+    const assetId = mediaResult.asset.asset_id;
+
     console.log(
       `Result from file upload ${result.status} ${result.statusText}`
     );
     console.log(`Content from file upload ${await result.text()}`);
 
-    // const result = await api.post("/api/submit/", {
-    //   kind: "image",
-    //   title: `${image.name} (${image.meta})`,
-    //   url: image.fullUrl,
-    //   sr: "test",
-    // });
+    const body = {
+      items: [
+        {
+          caption: image.alt,
+          outbound_url: image.fullUrl,
+          media_id: assetId,
+        },
+      ],
+      show_error_list: true,
+      sr: "test",
+      title: `${image.name} (${image.meta})`,
+    };
 
-    // console.log("Result from reddit: " + JSON.stringify(result));
+    const postResult = await api.post("/api/submit_gallery_post.json", body, {
+      json: true,
+    });
+
+    console.log("Result from reddit: " + JSON.stringify(postResult));
   }
 
   private async login() {
@@ -108,17 +126,28 @@ export class RedditPostLocation implements PostLocation {
 
 class RedditUserApi {
   constructor(private token: string) {}
-  async post(path: string, data: Record<string, string>) {
-    const response = await fetch(
-      apiBase + path,
-      Object.assign(this.defaultRequest(), {
-        method: "POST",
-        body: convertJsonToFormEncoding({
-          ...data,
-          api_type: "json",
-        }),
-      })
-    );
+
+  async post(
+    path: string,
+    data: object,
+    { json }: { json: boolean } = { json: false }
+  ) {
+    const response = await fetch(apiBase + path, {
+      ...this.defaultRequest(
+        json
+          ? {
+              "Content-Type": "application/json",
+            }
+          : {}
+      ),
+      method: "POST",
+      body: json
+        ? JSON.stringify(data)
+        : convertJsonToFormEncoding({
+            ...data,
+            api_type: "json",
+          }),
+    });
 
     if (response.status !== 200) {
       console.log(
@@ -132,11 +161,12 @@ class RedditUserApi {
     return await response.json();
   }
 
-  private defaultRequest() {
+  private defaultRequest(headers?: object) {
     return {
       headers: {
         Authorization: `bearer ${this.token}`,
         "User-Agent": "PhotoPoster by TickleThePanda",
+        ...headers,
       },
     };
   }
