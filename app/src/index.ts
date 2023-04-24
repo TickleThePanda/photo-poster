@@ -44,7 +44,23 @@ export const handler: Handler = async (
     postLocations
   );
 
-  await Promise.allSettled(activePostLocations.map((l) => l.post(image)));
+  const results = await Promise.allSettled(
+    activePostLocations.map(async (l) => {
+      if (await l.canPost(image)) {
+        l.post(image);
+      } else {
+        console.log("Could not post image for ");
+      }
+    })
+  );
+
+  if (results.some((r) => r.status === "rejected")) {
+    const failures: PromiseRejectedResult[] = <PromiseRejectedResult[]>(
+      results.filter((r) => r.status === "rejected")
+    );
+    const reasons = failures.map((r) => r.reason);
+    throw Error("Some posts failed " + reasons);
+  }
 
   return context.logStreamName;
 };
