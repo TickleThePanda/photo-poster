@@ -4,7 +4,7 @@ import { PostLocation } from "./post-location.js";
 import totp from "totp-generator";
 
 const authUrl = "https://www.reddit.com/api/v1/access_token/";
-const apiBase = "https://oauth.reddit.com/api/v1";
+const apiBase = "https://oauth.reddit.com/api";
 
 export type RedditConfig = {
   clientKey: string;
