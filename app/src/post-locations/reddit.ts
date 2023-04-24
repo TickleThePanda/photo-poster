@@ -25,8 +25,6 @@ export class RedditPostLocation implements PostLocation {
   async post(image: SelectedImage): Promise<void> {
     const accessToken = await this.login();
 
-    console.log(accessToken);
-
     const body = {
       kind: "image",
       title: `${image.name} (${image.meta})`,
@@ -42,12 +40,18 @@ export class RedditPostLocation implements PostLocation {
         "User-Agent": "PhotoPoster by TickleThePanda",
       },
     });
+
+    if (result.status !== 200) {
+      throw new Error(
+        `Error posting image ${result.status} ${result.statusText}`
+      );
+    }
+
+    console.log("Result from reddit: " + JSON.stringify(await result.json()));
   }
 
   private async login() {
     const totpKey = totp(this.config.posterTotpKey);
-
-    console.log(totpKey);
 
     const body = new FormData();
     body.append("grant_type", "password");
