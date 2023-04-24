@@ -13,6 +13,7 @@ export type Gallery = {
 export type ImageReference = {
   name: string;
   alt: string;
+  meta: string;
   originalImageUrl: string;
   sizes: Size[];
   aspectRatio: {

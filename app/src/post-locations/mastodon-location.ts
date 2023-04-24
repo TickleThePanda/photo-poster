@@ -21,8 +21,10 @@ export class MastodonPostLocation implements PostLocation {
       description: image.alt,
     });
 
+    const meta = image.meta !== undefined ? `(${image.meta})` : "";
+
     await masto.v1.statuses.create({
-      status: `"${image.name}"
+      status: `"${image.name}" ${meta}
   #FilmPhotography #Photography
   More: https://www.ticklethepanda.dev/photography/`,
       mediaIds: [attachment.id],

@@ -46,7 +46,9 @@ function getActiveLocations(
 ): PostLocation[] {
   const excludes = event?.excludes;
   if (Array.isArray(excludes)) {
-    console.log(`Filtering locations ${excludes}`);
+    const keys = Object.keys(postLocations);
+    console.log(`Filtering locations ${keys} to exclude "${excludes}"`);
+
     return Object.entries(postLocations)
       .filter(([key]) => !excludes.includes(key))
       .map(([_, v]) => v);
