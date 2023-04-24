@@ -22,12 +22,12 @@ export const handler: Handler = async (
   console.log(`Mastodon API base URL '${mastodonApiBaseUrl}'`);
 
   const imageSelector = new ImageSelector(galleryUrl);
-  const postLocations: Record<string, PostLocation> = {
-    mastodon: new MastodonPostLocation({
+  const postLocations: PostLocation[] = [
+    new MastodonPostLocation({
       baseUrl: mastodonApiBaseUrl,
       accessToken: mastodonApiToken,
     }),
-    reddit: new RedditPostLocation({
+    new RedditPostLocation({
       baseUrl: "https://www.reddit.com/api/v1/",
       clientKey: await getSecret("REDDIT_API_APP_ID"),
       clientSecret: await getSecret("REDDIT_API_APP_SECRET"),
@@ -35,7 +35,7 @@ export const handler: Handler = async (
       posterPassword: await getSecret("REDDIT_API_POSTER_PASSWORD"),
       posterTotpKey: await getSecret("REDDIT_API_POSTER_OTP_KEY"),
     }),
-  };
+  ];
 
   const image = await imageSelector.selectRandomImage();
 
@@ -70,16 +70,13 @@ export const handler: Handler = async (
 
 function getActiveLocations(
   event: Event | undefined,
-  postLocations: Record<string, PostLocation>
+  postLocations: PostLocation[]
 ): PostLocation[] {
   const excludes = event?.excludes;
   if (Array.isArray(excludes)) {
-    const keys = Object.keys(postLocations);
+    const keys = postLocations.map((l) => l.type);
     console.log(`Filtering locations ${keys} to exclude "${excludes}"`);
-
-    return Object.entries(postLocations)
-      .filter(([key]) => !excludes.includes(key))
-      .map(([_, v]) => v);
+    return postLocations.filter((l) => !excludes.includes(l.type));
   } else {
     console.log("Use all locations");
     return Object.values(postLocations);
