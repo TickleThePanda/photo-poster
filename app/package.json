@@ -22,6 +22,7 @@
     "masto": "^5.11.2"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.114",
     "@types/semver": "^7.3.13",
     "@types/ws": "^8.5.4",
     "npm-pack-zip": "^1.3.0",
