@@ -1,5 +1,6 @@
 import type { SelectedImage } from "../image-selector";
 import { PostLocation } from "./post-location.js";
+import { fetch, FormData } from "undici";
 
 import totp from "totp-generator";
 
@@ -29,10 +30,10 @@ export class RedditPostLocation implements PostLocation {
     mediaBody.append("filepath", "photo");
     mediaBody.append("mimetype", "image/webp");
 
-    const mediaResult = await api.post("/api/media/asset.json", {
+    const mediaResult = (await api.post("/api/media/asset.json", {
       filepath: "photo",
       mimetype: "image/webp",
-    });
+    })) as any;
 
     console.log("Result from media" + JSON.stringify(mediaResult));
 
@@ -49,6 +50,9 @@ export class RedditPostLocation implements PostLocation {
     const result = await fetch(uploadUrl, {
       method: "POST",
       body: uploadFormData,
+      headers: {
+        "Transfer-Encoding": "chunked",
+      },
     });
 
     console.log(
@@ -94,7 +98,7 @@ export class RedditPostLocation implements PostLocation {
       );
     }
 
-    const data = await result.json();
+    const data = (await result.json()) as any;
 
     if (data.access_token === undefined) {
       throw new Error(`Error logging into reddit ${JSON.stringify(data)}`);
