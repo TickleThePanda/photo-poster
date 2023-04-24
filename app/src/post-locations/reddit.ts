@@ -47,6 +47,7 @@ export class RedditPostLocation implements PostLocation {
     uploadFormData.append("file", image.blob, "photo");
 
     const result = await fetch(uploadUrl, {
+      method: "POST",
       body: uploadFormData,
     });
 
