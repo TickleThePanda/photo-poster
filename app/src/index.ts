@@ -35,7 +35,7 @@ export const handler: Handler = async (
     postLocations
   );
 
-  Promise.allSettled(activePostLocations.map((l) => l.post(image)));
+  await Promise.allSettled(activePostLocations.map((l) => l.post(image)));
 
   return context.logStreamName;
 };
