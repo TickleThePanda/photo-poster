@@ -40,6 +40,7 @@ export class RedditPostLocation implements PostLocation {
     const uploadUrl = "https:" + uploadLease.action;
     const uploadData = uploadLease.fields.reduce((p: any, c: any) => {
       p[c.name] = c.value;
+      return p;
     }, {});
 
     const uploadFormData = convertJsonToFormEncoding(uploadData);
