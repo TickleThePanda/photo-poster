@@ -16,8 +16,8 @@
   "bundleDependencies": true,
   "dependencies": {
     "aws-sdk": "^2.1363.0",
-    "notp": "^2.0.3",
-    "masto": "^5.11.2"
+    "masto": "^5.11.2",
+    "one-time-password": "^0.1.6"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.114",
