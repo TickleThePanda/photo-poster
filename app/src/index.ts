@@ -49,7 +49,7 @@ export const handler: Handler = async (
       console.log("Checking for " + l.type);
       if (await l.canPost(image)) {
         console.log("Posting for " + l.type);
-        l.post(image);
+        await l.post(image);
         console.log("Successfully posted for " + l.type);
       } else {
         console.log("Could not post image for " + l.type);
