@@ -38,16 +38,22 @@ export class RedditPostLocation implements PostLocation {
         this.config.clientKey + ":" + this.config.clientSecret
       ).toString("base64");
 
-    const data = await (
-      await fetch(this.config.baseUrl + "/v1/access_token/", {
-        method: "POST",
-        body: formDataBody,
-        headers: {
-          Authorization: authHeaderValue,
-        },
-      })
-    ).json();
+    const result = await fetch(this.config.baseUrl + "/access_token/", {
+      method: "POST",
+      body: formDataBody,
+      headers: {
+        Authorization: authHeaderValue,
+      },
+    });
 
-    console.log(data);
+    if (result.status !== 200) {
+      throw new Error(
+        `Error logging into reddit ${result.status} ${result.statusText}`
+      );
+    }
+
+    const data = await result.json();
+
+    console.log("Result from reddit" + data);
   }
 }
