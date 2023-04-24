@@ -25,16 +25,15 @@ export class RedditPostLocation implements PostLocation {
   async post(image: SelectedImage): Promise<void> {
     const accessToken = await this.login();
 
-    const body = {
-      kind: "image",
-      title: `${image.name} (${image.meta})`,
-      url: image.fullUrl,
-      sr: "test",
-    };
+    const body = new FormData();
+    body.append("kind", "image");
+    body.append("title", `${image.name} (${image.meta})`);
+    body.append("url", image.fullUrl);
+    body.append("sr", "test");
 
     const result = await fetch(apiBase + "/submit/", {
       method: "POST",
-      body: JSON.stringify(body),
+      body,
       headers: {
         Authorization: "bearer " + accessToken,
         "User-Agent": "PhotoPoster by TickleThePanda",
