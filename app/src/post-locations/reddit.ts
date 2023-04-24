@@ -50,9 +50,6 @@ export class RedditPostLocation implements PostLocation {
     const result = await fetch(uploadUrl, {
       method: "POST",
       body: uploadFormData,
-      headers: {
-        "Transfer-Encoding": "chunked",
-      },
     });
 
     console.log(
