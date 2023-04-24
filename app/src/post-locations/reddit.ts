@@ -3,8 +3,10 @@ import { PostLocation } from "./post-location.js";
 
 import totp from "totp-generator";
 
+const authUrl = "https://www.reddit.com/api/v1/access_token/";
+const apiBase = "https://oauth.reddit.com/api/v1";
+
 export type RedditConfig = {
-  baseUrl: string;
   clientKey: string;
   clientSecret: string;
   posterUser: string;
@@ -21,6 +23,28 @@ export class RedditPostLocation implements PostLocation {
   }
 
   async post(image: SelectedImage): Promise<void> {
+    const accessToken = await this.login();
+
+    console.log(accessToken);
+
+    const body = {
+      kind: "image",
+      title: `${image.name} (${image.meta})`,
+      url: image.fullUrl,
+      sr: "test",
+    };
+
+    const result = await fetch(apiBase + "/submit/", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: {
+        Authorization: "bearer " + accessToken,
+        "User-Agent": "PhotoPoster by TickleThePanda",
+      },
+    });
+  }
+
+  private async login() {
     const totpKey = totp(this.config.posterTotpKey);
 
     console.log(totpKey);
@@ -36,7 +60,7 @@ export class RedditPostLocation implements PostLocation {
         this.config.clientKey + ":" + this.config.clientSecret
       ).toString("base64");
 
-    const result = await fetch(this.config.baseUrl + "/access_token/", {
+    const result = await fetch(authUrl, {
       method: "POST",
       body,
       headers: {
@@ -52,6 +76,11 @@ export class RedditPostLocation implements PostLocation {
 
     const data = await result.json();
 
-    console.log("Result from reddit " + JSON.stringify(data, null, 2));
+    if (data.access_token === undefined) {
+      throw new Error(`Error logging into reddit ${JSON.stringify(data)}`);
+    }
+
+    const accessToken = data.access_token;
+    return accessToken;
   }
 }

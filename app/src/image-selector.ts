@@ -8,6 +8,7 @@ import type {
 export type SelectedImage = ImageReference &
   Size & {
     blob: Blob;
+    fullUrl: string;
   };
 
 export class ImageSelector {
@@ -26,7 +27,10 @@ export class ImageSelector {
 
     const blob = await getFileAsBlob(url);
 
-    return Object.assign({}, selectedImage, largestSize, { blob });
+    return Object.assign({}, selectedImage, largestSize, {
+      blob,
+      fullUrl: url,
+    });
   }
 }
 

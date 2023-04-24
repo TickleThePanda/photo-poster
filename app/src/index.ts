@@ -28,7 +28,6 @@ export const handler: Handler = async (
       accessToken: mastodonApiToken,
     }),
     new RedditPostLocation({
-      baseUrl: "https://www.reddit.com/api/v1",
       clientKey: await getSecret("REDDIT_API_APP_ID"),
       clientSecret: await getSecret("REDDIT_API_APP_SECRET"),
       posterUser: await getSecret("REDDIT_API_POSTER_USER"),
