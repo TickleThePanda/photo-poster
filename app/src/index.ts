@@ -3,41 +3,42 @@ import aws from "aws-sdk";
 
 const secretsManagerClient = new aws.SecretsManager();
 
-/**
- * @typedef {Object} Gallery
- * @property {string} name
- * @property {string} ref
- * @property {string} description
- * @property {Image[]} images
- */
+type Gallery = {
+  name: string;
+  ref: string;
+  description: string;
+  images: Image[];
+};
 
-/**
- * @typedef {Object} Image
- * @property {string} name
- * @property {string} alt
- * @property {string} originalImageUrl
- * @property {Size[]} sizes
- * @property {AspectRatio} aspectRatio
- */
+type Image = {
+  name: string;
+  alt: string;
+  originalImageUrl: string;
+  sizes: Size[];
+  aspectRatio: {
+    x: string;
+    y: string;
+  };
+};
 
-/**
- * @typedef {Object} Size
- * @property {number} x
- * @property {number} y
- * @property {string} type
- * @property {string} url
- */
-
-/**
- * @typedef {Object} AspectRatio
- * @property {string} x
- * @property {string} y
- */
+type Size = {
+  x: number;
+  y: number;
+  type: string;
+  url: string;
+};
 
 export async function handler() {
   const mastodonApiToken = await getSecret("MASTODON_API_TOKEN");
   const mastodonApiBaseUrl = process.env.MASTODON_API_BASE_URL;
   const galleryUrl = process.env.GALLERY_URL;
+
+  if (mastodonApiBaseUrl === undefined) {
+    throw new Error("Env MASTODON_API_BASE_URL must be defined");
+  }
+  if (galleryUrl === undefined) {
+    throw new Error("Env GALLERY_URL must be defined");
+  }
 
   console.log(`Using gallery URL: '${galleryUrl}'`);
   console.log(`Mastodon API base URL '${mastodonApiBaseUrl}'`);
@@ -75,24 +76,20 @@ More: https://www.ticklethepanda.dev/photography/`,
   });
 }
 
-/**
- *
- * @param {Image} selectedImage
- * @returns {Size}
- */
-function getLargestSizeImage(selectedImage) {
-  const imageSizes = selectedImage.sizes.filter((s) => (s.type = "webp"));
-  const largestSize = imageSizes.reduce((p, c) => (c.x > p.x ? c : p), {
+function getLargestSizeImage(selectedImage: Image): Size {
+  const smallestSize: Size = <Size>{
     x: 0,
-  });
+    y: 0,
+  };
+  const imageSizes = selectedImage.sizes.filter((s) => (s.type = "webp"));
+  const largestSize = imageSizes.reduce(
+    (p, c) => (c.x > p.x ? c : p),
+    smallestSize
+  );
   return largestSize;
 }
 
-/**
- * @param {Gallery[]} galleries
- * @returns {Image}
- */
-function selectRandomImage(galleries) {
+function selectRandomImage(galleries: Gallery[]): Image {
   const allImages = galleries.flatMap((g) => g.images);
   const imageCount = allImages.length;
   const randomIndex = Math.floor(Math.random() * imageCount);
@@ -100,10 +97,16 @@ function selectRandomImage(galleries) {
   return selectedImage;
 }
 
-async function getSecret(secretName) {
+async function getSecret(secretName: string) {
+  const secretKey = process.env[`${secretName}_ASM_NAME`];
+
+  if (secretKey === undefined) {
+    throw new Error(`Env ${secretName}_ASM_NAME must be defined`);
+  }
+
   const { SecretString: value } = await secretsManagerClient
     .getSecretValue({
-      SecretId: process.env[`${secretName}_ASM_NAME`],
+      SecretId: secretKey,
     })
     .promise();
 
@@ -114,7 +117,7 @@ async function getSecret(secretName) {
   return value;
 }
 
-async function getFileAsBlob(url) {
+async function getFileAsBlob(url: string): Promise<Blob> {
   console.log(`Downloading image ${url}`);
   const response = await fetch(url);
 

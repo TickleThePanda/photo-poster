@@ -66,7 +66,7 @@ resource "aws_lambda_function" "lambda" {
   source_code_hash = data.archive_file.main.output_base64sha256
   function_name    = local.lambda_name
   role             = aws_iam_role.lambda_role.arn
-  handler          = "index.handler"
+  handler          = "lib/index.handler"
   runtime          = "nodejs18.x"
   timeout          = 15
   memory_size      = 512
