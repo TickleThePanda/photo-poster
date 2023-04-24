@@ -21,16 +21,13 @@ export class RedditPostLocation implements PostLocation {
   }
 
   async post(image: SelectedImage): Promise<void> {
-    const formData = {
-      grant_type: "password",
-      username: this.config.posterUser,
-      password:
-        this.config.posterPassword + ":" + totp.gen(this.config.posterTotpKey),
-    };
-
-    const formDataBody = Object.entries(formData)
-      .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
-      .join("&");
+    const body = new FormData();
+    body.append("grant_type", "password");
+    body.append("username", this.config.posterUser);
+    body.append(
+      "password",
+      this.config.posterPassword + ":" + totp.gen(this.config.posterTotpKey)
+    );
 
     const authHeaderValue =
       "Basic " +
@@ -40,7 +37,7 @@ export class RedditPostLocation implements PostLocation {
 
     const result = await fetch(this.config.baseUrl + "/access_token/", {
       method: "POST",
-      body: formDataBody,
+      body,
       headers: {
         Authorization: authHeaderValue,
       },

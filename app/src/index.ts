@@ -58,9 +58,9 @@ export const handler: Handler = async (
   );
 
   if (results.some((r) => r.status === "rejected")) {
-    const failures: PromiseRejectedResult[] = <PromiseRejectedResult[]>(
-      results.filter((r) => r.status === "rejected")
-    );
+    const failures: PromiseRejectedResult[] = results.filter(
+      (r) => r.status === "rejected"
+    ) as PromiseRejectedResult[];
     const reasons = failures.map((r) => r.reason);
     throw Error("Some posts failed " + reasons);
   }

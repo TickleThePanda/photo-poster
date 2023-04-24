@@ -16,7 +16,7 @@ export class ImageSelector {
   async selectRandomImage(): Promise<SelectedImage> {
     const result = await fetch(this.url);
 
-    const galleries = (<GalleriesResponse>await result.json()).galleries;
+    const galleries = ((await result.json()) as GalleriesResponse).galleries;
     const selectedImage = selectRandomImage(galleries);
     console.log(`Selected random image '${selectedImage.name}'`);
     const largestSize = getLargestSizeImage(selectedImage);
@@ -39,10 +39,10 @@ function selectRandomImage(galleries: Gallery[]): ImageReference {
 }
 
 function getLargestSizeImage(selectedImage: ImageReference): Size {
-  const smallestSize: Size = <Size>{
+  const smallestSize: Size = {
     x: 0,
     y: 0,
-  };
+  } as Size;
   const imageSizes = selectedImage.sizes.filter((s) => (s.type = "webp"));
   const largestSize = imageSizes.reduce(
     (p, c) => (c.x > p.x ? c : p),
