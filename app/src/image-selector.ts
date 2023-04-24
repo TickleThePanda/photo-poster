@@ -1,4 +1,9 @@
-import { GalleriesResponse, Gallery, ImageReference, Size } from "./gallery";
+import type {
+  GalleriesResponse,
+  Gallery,
+  ImageReference,
+  Size,
+} from "./gallery";
 
 export type SelectedImage = ImageReference &
   Size & {

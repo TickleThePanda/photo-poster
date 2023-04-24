@@ -1,5 +1,5 @@
 import aws from "aws-sdk";
-import { getRequiredEnv } from "./required-env";
+import { getRequiredEnv } from "./required-env.js";
 
 const secretsManagerClient = new aws.SecretsManager();
 export async function getSecret(secretName: string) {

@@ -1,6 +1,6 @@
 import { login } from "masto";
-import { SelectedImage } from "../image-selector";
-import { PostLocation } from "./post-location";
+import type { SelectedImage } from "../image-selector";
+import { PostLocation } from "./post-location.js";
 
 export type MastodonConfig = {
   baseUrl: string;

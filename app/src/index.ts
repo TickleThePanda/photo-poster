@@ -1,9 +1,9 @@
 import { Handler, Context } from "aws-lambda";
-import { ImageSelector } from "./image-selector";
-import { MastodonPostLocation } from "./post-locations/mastodon-location";
-import { PostLocation } from "./post-locations/post-location";
-import { getRequiredEnv } from "./required-env";
-import { getSecret } from "./secrets-manager";
+import { ImageSelector } from "./image-selector.js";
+import { PostLocation } from "./post-locations/post-location.js";
+import { MastodonPostLocation } from "./post-locations/mastodon-location.js";
+import { getRequiredEnv } from "./required-env.js";
+import { getSecret } from "./secrets-manager.js";
 
 type Event = {
   excludes: string[] | undefined;
