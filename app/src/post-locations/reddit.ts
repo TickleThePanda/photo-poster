@@ -1,7 +1,7 @@
 import type { SelectedImage } from "../image-selector";
 import { PostLocation } from "./post-location.js";
 
-import OTP from "one-time-password";
+import totp from "totp-generator";
 
 export type RedditConfig = {
   baseUrl: string;
@@ -21,7 +21,7 @@ export class RedditPostLocation implements PostLocation {
   }
 
   async post(image: SelectedImage): Promise<void> {
-    const totpKey = OTP.generate(this.config.posterTotpKey);
+    const totpKey = totp(this.config.posterTotpKey);
 
     console.log(totpKey);
 
