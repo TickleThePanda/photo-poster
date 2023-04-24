@@ -26,43 +26,12 @@ export class RedditPostLocation implements PostLocation {
   async post(image: SelectedImage): Promise<void> {
     const api = await this.login();
 
-    const mediaBody = new FormData();
-    mediaBody.append("filepath", "photo");
-    mediaBody.append("mimetype", "image/webp");
-
-    const mediaResult = (await api.post("/api/media/asset.json", {
-      filepath: "photo",
-      mimetype: "image/webp",
-    })) as any;
-
-    console.log("Result from media" + JSON.stringify(mediaResult));
-
-    const uploadLease = mediaResult.args;
-    const uploadUrl = "https:" + uploadLease.action;
-    const uploadData = uploadLease.fields.reduce((p: any, c: any) => {
-      p[c.name] = c.value;
-      return p;
-    }, {});
-
-    const uploadFormData = convertJsonToFormEncoding(uploadData);
-    uploadFormData.append("file", image.blob, "photo");
-
-    const result = await fetch(uploadUrl, {
-      method: "POST",
-      body: uploadFormData,
-    });
-
-    const assetId = mediaResult.asset.asset_id;
-
-    console.log(
-      `Result from file upload ${result.status} ${result.statusText}`
-    );
-    console.log(`Content from file upload ${await result.text()}`);
+    const imageUrl = await api.uploadImage(image);
 
     const body = {
       kind: "image",
-      url: `${uploadUrl}/${uploadData.key}`,
-      sr: "test",
+      url: imageUrl,
+      sr: "analog",
       title: `${image.name} (${image.meta})`,
     };
 
@@ -112,6 +81,42 @@ export class RedditPostLocation implements PostLocation {
 
 class RedditUserApi {
   constructor(private token: string) {}
+
+  async uploadImage(image: SelectedImage) {
+    const mediaBody = new FormData();
+    mediaBody.append("filepath", "photo");
+    mediaBody.append("mimetype", "image/webp");
+
+    const mediaResult = (await this.post("/api/media/asset.json", {
+      filepath: "photo",
+      mimetype: "image/webp",
+    })) as any;
+
+    console.log("Result from media" + JSON.stringify(mediaResult));
+
+    const uploadLease = mediaResult.args;
+    const uploadUrl = "https:" + uploadLease.action;
+    const uploadData = uploadLease.fields.reduce((p: any, c: any) => {
+      p[c.name] = c.value;
+      return p;
+    }, {});
+
+    const uploadFormData = convertJsonToFormEncoding(uploadData);
+    uploadFormData.append("file", image.blob, "photo");
+
+    const result = await fetch(uploadUrl, {
+      method: "POST",
+      body: uploadFormData,
+    });
+
+    console.log(
+      `Result from file upload ${result.status} ${result.statusText}`
+    );
+    console.log(`Content from file upload ${await result.text()}`);
+
+    const imageUrl = `${uploadUrl}/${uploadData.key}`;
+    return imageUrl;
+  }
 
   async post(
     path: string,
