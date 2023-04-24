@@ -46,10 +46,13 @@ export const handler: Handler = async (
 
   const results = await Promise.allSettled(
     activePostLocations.map(async (l) => {
+      console.log("Checking for " + l.type);
       if (await l.canPost(image)) {
+        console.log("Posting for " + l.type);
         l.post(image);
+        console.log("Successfully posted for " + l.type);
       } else {
-        console.log("Could not post image for ");
+        console.log("Could not post image for " + l.type);
       }
     })
   );

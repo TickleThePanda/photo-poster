@@ -8,6 +8,7 @@ export type MastodonConfig = {
 };
 
 export class MastodonPostLocation implements PostLocation {
+  public readonly type = "mastodon";
   constructor(private config: MastodonConfig) {}
 
   async canPost(image: SelectedImage): Promise<boolean> {

@@ -13,6 +13,7 @@ export type RedditConfig = {
 };
 
 export class RedditPostLocation implements PostLocation {
+  public readonly type = "reddit";
   constructor(private config: RedditConfig) {}
 
   async canPost(image: SelectedImage): Promise<boolean> {
