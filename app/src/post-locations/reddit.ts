@@ -36,6 +36,24 @@ export class RedditPostLocation implements PostLocation {
 
     console.log("Result from media" + JSON.stringify(mediaResult));
 
+    const uploadLease = mediaResult.args;
+    const uploadUrl = "https:" + uploadLease.action;
+    const uploadData = uploadLease.fields.reduce((p: any, c: any) => {
+      p[c.name] = c.value;
+    }, {});
+
+    const uploadFormData = convertJsonToFormEncoding(uploadData);
+    uploadFormData.append("file", image.blob, "photo");
+
+    const result = await fetch(uploadUrl, {
+      body: uploadFormData,
+    });
+
+    console.log(
+      `Result from file upload ${result.status} ${result.statusText}`
+    );
+    console.log(`Content from file upload ${await result.text()}`);
+
     // const result = await api.post("/api/submit/", {
     //   kind: "image",
     //   title: `${image.name} (${image.meta})`,
@@ -88,17 +106,14 @@ export class RedditPostLocation implements PostLocation {
 class RedditUserApi {
   constructor(private token: string) {}
   async post(path: string, data: Record<string, string>) {
-    const body = new FormData();
-    for (const [k, v] of Object.entries(data)) {
-      body.append(k, v);
-    }
-    body.append("api_type", "json");
-
     const response = await fetch(
       apiBase + path,
       Object.assign(this.defaultRequest(), {
         method: "POST",
-        body,
+        body: convertJsonToFormEncoding({
+          ...data,
+          api_type: "json",
+        }),
       })
     );
 
@@ -122,4 +137,12 @@ class RedditUserApi {
       },
     };
   }
+}
+
+function convertJsonToFormEncoding(data: Record<string, string>): FormData {
+  const body = new FormData();
+  for (const [k, v] of Object.entries(data)) {
+    body.append(k, v);
+  }
+  return body;
 }
