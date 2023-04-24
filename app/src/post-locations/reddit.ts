@@ -42,8 +42,15 @@ export class RedditPostLocation implements PostLocation {
     });
 
     if (result.status !== 200) {
+      console.log(
+        `Error posting image ${result.status} ${
+          result.statusText
+        }: ${await result.text()}`
+      );
       throw new Error(
-        `Error posting image ${result.status} ${result.statusText}`
+        `Error posting image ${result.status} ${
+          result.statusText
+        }: ${await result.text()}`
       );
     }
 
