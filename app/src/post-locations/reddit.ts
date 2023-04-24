@@ -54,6 +54,6 @@ export class RedditPostLocation implements PostLocation {
 
     const data = await result.json();
 
-    console.log("Result from reddit" + data);
+    console.log("Result from reddit " + JSON.stringify(data, null, 2));
   }
 }
