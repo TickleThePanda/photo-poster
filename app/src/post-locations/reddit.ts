@@ -60,21 +60,13 @@ export class RedditPostLocation implements PostLocation {
     console.log(`Content from file upload ${await result.text()}`);
 
     const body = {
-      items: [
-        {
-          caption: image.alt,
-          outbound_url: image.fullUrl,
-          media_id: assetId,
-        },
-      ],
-      show_error_list: true,
+      kind: "image",
+      url: `${uploadUrl}/${uploadData.key}`,
       sr: "test",
       title: `${image.name} (${image.meta})`,
     };
 
-    const postResult = await api.post("/api/submit_gallery_post.json", body, {
-      json: true,
-    });
+    const postResult = await api.post("/api/submit", body);
 
     console.log("Result from reddit: " + JSON.stringify(postResult));
   }
