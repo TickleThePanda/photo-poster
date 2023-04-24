@@ -21,13 +21,14 @@ export class RedditPostLocation implements PostLocation {
   }
 
   async post(image: SelectedImage): Promise<void> {
+    const totpKey = totp.gen(this.config.posterTotpKey);
+
+    console.log(totpKey);
+
     const body = new FormData();
     body.append("grant_type", "password");
     body.append("username", this.config.posterUser);
-    body.append(
-      "password",
-      this.config.posterPassword + ":" + totp.gen(this.config.posterTotpKey)
-    );
+    body.append("password", this.config.posterPassword + ":" + totpKey);
 
     const authHeaderValue =
       "Basic " +
