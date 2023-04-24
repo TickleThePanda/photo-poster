@@ -30,16 +30,10 @@ export class RedditPostLocation implements PostLocation {
     mediaBody.append("filepath", "photo");
     mediaBody.append("mimetype", "image/webp");
 
-    const mediaResult = (await api.post(
-      "/api/media/asset.json",
-      {
-        filepath: "photo",
-        mimetype: "image/webp",
-      },
-      {
-        json: true,
-      }
-    )) as any;
+    const mediaResult = (await api.post("/api/media/asset.json", {
+      filepath: "photo",
+      mimetype: "image/webp",
+    })) as any;
 
     console.log("Result from media" + JSON.stringify(mediaResult));
 
