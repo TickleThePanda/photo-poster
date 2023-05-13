@@ -4,7 +4,7 @@ locals {
   mastodon_api_base_url = "https://tech.lgbt/"
   lambda_name           = "photo-poster"
   gallery_url           = "https://galleries.ticklethepanda.co.uk/"
-  schedule              = "cron(0 15 ? * MON *)"
+  schedule              = "cron(0 18 ? * MON,WED,FRI *)"
 }
 
 
