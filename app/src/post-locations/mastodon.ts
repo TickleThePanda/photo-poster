@@ -26,7 +26,7 @@ export class MastodonPostLocation implements PostLocation {
       description: image.alt,
     });
 
-    const meta = image.meta !== undefined ? `(${image.meta})` : "";
+    const meta = (image.meta !== undefined && image.meta !== null) ? `(${image.meta})` : "";
 
     await masto.v1.statuses.create({
       status: `"${image.name}" ${meta}

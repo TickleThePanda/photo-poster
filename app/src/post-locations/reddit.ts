@@ -20,7 +20,7 @@ export class RedditPostLocation implements PostLocation {
   constructor(private config: RedditConfig) {}
 
   async canPost(image: SelectedImage): Promise<boolean> {
-    return image.meta !== undefined;
+    return image.meta !== undefined && image.meta !== null;
   }
 
   async post(image: SelectedImage): Promise<void> {
